@@ -11,11 +11,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PRACTICAL_EAP.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace PRACTICAL_EAP
 {
     public class Startup
     {
+        readonly string MyAllowOrigins = "_myAllowOrigins";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -26,6 +31,16 @@ namespace PRACTICAL_EAP
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // them ket noi db 
+            var connectionString = Configuration.GetConnectionString("Practical_Database");
+            services.AddDbContextPool<PRACTICAL_EAPContext>(options => options.UseSqlServer(connectionString));
+
+            // add CORS
+            services.AddCors(options => {
+                options.AddPolicy(name: MyAllowOrigins,
+                    builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
+                    );
+            });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
